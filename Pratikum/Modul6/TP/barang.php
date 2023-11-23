@@ -1,0 +1,67 @@
+<?php
+require 'koneksi.inc';
+$query_barang = mysqli_query($koneksi, 'SELECT * FROM barang');
+
+$ind = 1;
+?>
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Data Transaksi Barang</title>
+
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+</head>
+<body>
+	<div class='container mt-5'>
+		<div class="d-flex justify-content-between">
+			<h2 class='float-start'>Data Transaksi Barang</h2>
+			<div>
+				<a href='addBarang.php'><button type='button' class='btn btn-success mb-5'>Tambah Data</button></a>
+				<a href='index.php'><button type='button' class='btn btn-warning mb-5 ms-2'>Cek Supplier</button></a>
+			</div>
+		</div>
+		<table class="table table-bordered">
+			<thead class='table-primary'>
+				<th>No</th>
+				<th>Kode Barang</th>
+				<th>Nama Barang</th>
+				<th>Harga</th>
+				<th>Stok</th>
+				<th>Supplier Id</th>
+				<th>Tindakan</th>
+			</thead>
+			<tbody>
+				<?php while($row = mysqli_fetch_assoc($query_barang)) : ?>
+					<tr>
+						<td><?= $ind ?></td>
+						<td><?= $row['kode_barang'] ?></td>
+						<td><?= $row['nama_barang'] ?></td>
+						<td><?= $row['harga'] ?></td>
+						<td><?= $row['stok'] ?></td>
+						<td><?= $row['supplier_id'] ?></td>
+						<td width="15%">
+							<a href='editBarang.php?kode=<?= $row['id'] ?>'><button type='button' class='btn btn-warning'>Edit</button></a>
+							<a href='barang.php?id=<?= $row['id'] ?>'><button onclick= "return confirm('Anda yakin akan menghapus barang ini?')" type='button' class='btn btn-danger' value='hapus'>Hapus</button></a>
+						</td>
+					</tr>
+					<?php $ind++ ?>
+				<?php endwhile; ?> 
+			</tbody>
+		</table>
+	</div>
+</body>
+</html>
+
+<?php
+
+if(isset($_GET['id'])){
+	$id = $_GET['id'];
+	mysqli_query($koneksi, "DELETE FROM barang WHERE id=$id");
+	echo "<h4 style='margin-left: 9%;'>Data Telah Hapus</h4>";
+	echo "<meta http-equiv=refresh content=1;URL='index.php'>";
+}
+?>
