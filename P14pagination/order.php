@@ -89,6 +89,9 @@ if (isset($_GET['search'])){
 		$sort = $_GET['sort'];
 		$filter_param = "?search=".$cari."&sort=".$sort."&";
 	}
+} else if (isset($_GET['sort'])){
+	$sort = $_GET['sort'];
+	$filter_param = "?sort=".$sort."&";
 }
 ?>
 
@@ -179,39 +182,24 @@ if (isset($_GET['search'])){
 		</div>
 			<?php if(mysqli_num_rows($result) > 1){ ?>
 				<nav class="text-center">
-					<?php if ((isset($_GET['sort']) || isset($_GET['hal']) || count($_GET) == 0) && !isset($_GET['search'])) { ?>
-						<span>Menampilkan <?=$hal_awal+1 ."-". $no-1?> data dari <?=mysqli_num_rows($data)?> data</span>
-						<ul class="pagination justify-content-center mt-3">
-							<li class="page-item <?= ($hal <= 1) ? "disabled" : ''; ?>">
-								<a class="page-link" href='<?= (!isset($_GET["sort"])) ? "?" : "?sort=$_GET[sort]&"; ?>hal=<?= $prev ?>'>Previous</a>
-							</li>
-							<?php for ($x = 1; $x <= $total_hal; $x++) { ?>
-								<li class="page-item <?= ($hal == $x) ? "active" : ''; ?>">
-									<a class="page-link" href='<?= (!isset($_GET["sort"])) ? "?" : "?sort=$_GET[sort]&"; ?>hal=<?= $x ?>'><?= $x ?></a>
-								</li>
-							<?php } ?>
-							<li class="page-item <?= ($hal >= $total_hal) ? "disabled" : ''; ?>">
-								<a class="page-link" href='<?= (!isset($_GET["sort"])) ? '?' : "?sort=$_GET[sort]&"; ?>hal=<?= $next ?>'>Next</a>
-							</li>
-						</ul>
-					<?php } ?>
+					
 
-					<?php if (isset($_GET['search'])) { ?>
+					
 						<span>Menampilkan <?=$hal_awal+1 ."-". $no-1?> data dari <?=mysqli_num_rows($data)?> data</span>
 						<ul class="pagination justify-content-center mt-3">
 							<li class="page-item <?= ($hal <= 1) ? "disabled" : ''; ?>">
-								<a class="page-link" href='<?= $filter_param ?>hal=<?= $prev ?>'>Previous</a>
+								<a class="page-link" href='<?=(!$_SERVER['QUERY_STRING'] ? "?" : $filter_param)?>hal=<?= $prev ?>'>Previous</a>
 							</li>
 							<?php for ($x = 1; $x <= $total_hal; $x++) { ?>
 								<li class="page-item <?= ($hal == $x) ? "active" : ''; ?>">
-									<a class="page-link" href='<?= $filter_param ?>hal=<?= $x ?>'><?= $x ?></a>
+									<a class="page-link" href='<?=(!$_SERVER['QUERY_STRING'] ? "?" : $filter_param)?>hal=<?= $x ?>'><?= $x ?></a>
 								</li>
 							<?php } ?>
 							<li class="page-item <?= ($hal >= $total_hal) ? "disabled" : ''; ?>">
-								<a class="page-link" href='<?= $filter_param ?>hal=<?= $next ?>'>Next</a>
+								<a class="page-link" href='<?=(!$_SERVER['QUERY_STRING'] ? "?" : $filter_param)?>hal=<?= $next ?>'>Next</a>
 							</li>
 						</ul>
-					<?php } ?>
+					
 				</nav>
 			<?php } else {echo "<span>Menampilkan 0 hasil</span>";}?>
 	</div>
