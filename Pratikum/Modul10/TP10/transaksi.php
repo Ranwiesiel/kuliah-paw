@@ -11,7 +11,12 @@ if (!isset($_SESSION["username"])) {
     header("location: login.php");
 }
 
-$batas = 10;
+$batas = 2;
+
+if (isset($_GET['view'])){
+	$batas = $_GET['view'];
+}
+
 $hal = isset($_GET['hal']) ? (int)$_GET['hal'] : 1;
 $hal_awal = ($hal > 1) ? ($hal * $batas) - $batas : 0;
 
@@ -51,13 +56,24 @@ $filter_param = '?';
 if (isset($_GET['search'])){
 	$cari = $_GET['search'];
 	$filter_param = "?search=".$cari."&";
+    if (isset($_GET['hal'])){
+        $p = $_GET['hal'];
+        $filter_param = "?search=".$cari."&hal=".$p."&";
+    }
 }
+
+$_SERVER['QUERY_STRING'];
+
 if (isset($_GET['sort'])){
     $sort = $_GET['sort'];
-    $filter_param = "?search=".$cari."&sort=".$sort."&";
+    $kolom = $_GET['s'];
+    // $filter_param = "?s=".$kolom."&sort=".$sort."&";
+    if ($sort == "desc"){
+        $result = mysqli_query($koneksi, "SELECT * FROM transaksi ORDER BY $kolom DESC LIMIT $hal_awal, $batas");
+    } else {
+        $result = mysqli_query($koneksi, "SELECT * FROM transaksi ORDER BY $kolom LIMIT $hal_awal, $batas");
+    }
 }
-
-
 
 function rupiah($angka){
 	$hasil_rupiah = "Rp " . number_format($angka,2,',','.');
@@ -75,6 +91,7 @@ function rupiah($angka){
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.min.css">
+    <script src="https://kit.fontawesome.com/47a76e5697.js" crossorigin="anonymous"></script>
 </head>
 
 <body>
@@ -105,7 +122,7 @@ function rupiah($angka){
                 <ul class="nav navbar-nav d-flex">
                     <li class="me-4">
                         <form method="get" action="">
-                            <div class="input-group ">
+                            <div class="input-group">
                                 <input type="text" name="search" class="form-control" placeholder="Search..." autocomplete="off">
                                 <button class="btn btn-secondary" type="submit"><i class="bi bi-search"></i></button>
                             </div>
@@ -129,37 +146,92 @@ function rupiah($angka){
             </div>
         </div>
     </nav>
-    <div class="container mt-4">
+    <div class="container mt-2">
+        <div class="row">
+            <div class="col-3">
+                <form method="get" action="">
+                    <div class="input-group input-group-sm mb-3">
+                        <span class="input-group-text">Menampilkan</span>
+                            <select class="form-select" name="view" onchange="this.form.submit()">
+                                <?php
+                                    $val = [5, 10, 20, 25]; 
+                                    foreach($val as $key): ?>
+                                            <option <?= (isset($_GET["view"]) && $_GET["view"] == $key) ? "selected" : "" ?> value="<?=$key?>"><?=$key?></option>
+                                    <?php endforeach; ?>
+                            </select>
+                            <span class="input-group-text">data</span>
+                        </div>
+                    </div>
+                </form>
+            </div>
         <div class="row">
             <div class="col">
+            <?php if(mysqli_num_rows($result) > 0){ ?>
                 <table id="example" class="table table-bordered table-hover">
                     <thead>
                         <tr class="table-secondary">
-                            <th scope="col">No</th>
-                            <th scope="col">Id</th>
-                            <th scope="col">Tanggal</th>
-                            <th scope="col">Pelanggan Id</th>
-                            <th scope="col">Keterangan</th>
-                            <th scope="col">Total</th>
+                            <th width=5%>
+                                No 
+                            </th>
+                            <th width=6%>
+                                Id 
+                                <?php if (!isset($_GET['sort']) || $_GET['sort'] == 'desc' && $_GET['s'] == "id") : ?>
+                                    <a href="<?= (!$_SERVER['QUERY_STRING']) ? "?" : $filter_param ?>s=id&sort=asc"><i class="fa-solid fa-sort-down"></i></a>
+                                <?php else : ?>
+                                    <a href="<?= (!$_SERVER['QUERY_STRING']) ? "?" : $filter_param ?>s=id&sort=desc"><i class="fa-solid fa-sort-up"></i></a>
+                                <?php endif ?>
+                            </th>
+                            <th width=13%>
+                                Tanggal 
+                                <?php if (!isset($_GET['sort']) || $_GET['sort'] == 'desc' && $_GET['s'] == "waktu_transaksi") : ?>
+                                    <a href="<?= (!$_SERVER['QUERY_STRING']) ? "?" : $filter_param ?>s=waktu_transaksi&sort=asc"><i class="fa-solid fa-sort-down"></i></a>
+                                <?php else : ?>
+                                    <a href="<?= (!$_SERVER['QUERY_STRING']) ? "?" : $filter_param ?>s=waktu_transaksi&sort=desc"><i class="fa-solid fa-sort-up"></i></a>
+                                <?php endif ?>
+                            </th>
+                            <th width=13%>
+                                Pelanggan Id 
+                                <?php if (!isset($_GET['sort']) || $_GET['sort'] == 'desc' && $_GET['s'] == "pelanggan_id") : ?>
+                                    <a href="<?= (!$_SERVER['QUERY_STRING']) ? "?" : $filter_param ?>s=pelanggan_id&sort=asc"><i class="fa-solid fa-sort-down"></i></a>
+                                <?php else : ?>
+                                    <a href="<?= (!$_SERVER['QUERY_STRING']) ? "?" : $filter_param ?>s=pelanggan_id&sort=desc"><i class="fa-solid fa-sort-up"></i></a>
+                                <?php endif ?>
+                            </th>
+                            <th scope="col">
+                                Keterangan 
+                                <?php if (!isset($_GET['sort']) || $_GET['sort'] == 'desc' && $_GET['s'] == "keterangan") : ?>
+                                    <a href="<?= (!$_SERVER['QUERY_STRING']) ? "?" : $filter_param ?>s=keterangan&sort=asc"><i class="fa-solid fa-sort-down"></i></a>
+                                <?php else : ?>
+                                    <a href="<?= (!$_SERVER['QUERY_STRING']) ? "?" : $filter_param ?>s=keterangan&sort=desc"><i class="fa-solid fa-sort-up"></i></a>
+                                <?php endif ?>
+                            </th>
+                            <th width=14%>
+                                Total 
+                                <?php if (!isset($_GET['sort']) || $_GET['sort'] == 'desc' && $_GET['s'] == "total") : ?>
+                                    <a href="<?= (!$_SERVER['QUERY_STRING']) ? "?" : $filter_param ?>s=total&sort=asc"><i class="fa-solid fa-sort-down"></i></a>
+                                <?php else : ?>
+                                    <a href="<?= (!$_SERVER['QUERY_STRING']) ? "?" : $filter_param ?>s=total&sort=desc"><i class="fa-solid fa-sort-up"></i></a>
+                                <?php endif ?>
+                            </th>
                         </tr>
                     </thead>
                     <tbody>
-                        <?php $no = 1;
-                        foreach ($result as $row) : ?>
+                        <?php foreach ($result as $row) : ?>
                             <tr>
-                                <td width=4%><?= $no++ ?>.</td>
-                                <td width=6%><?= $row['id'] ?></td>
-                                <td width=13%><?= $row['waktu_transaksi'] ?></td>
-                                <td width=13%><?= $row['pelanggan_id'] ?></td>
+                                <td><?= $no++ ?>.</td>
+                                <td><?= $row['id'] ?></td>
+                                <td><?= $row['waktu_transaksi'] ?></td>
+                                <td><?= $row['pelanggan_id'] ?></td>
                                 <td><?= $row['keterangan'] ?></td>
-                                <td width=14%><?= rupiah($row['total']) ?></td>
+                                <td><?= rupiah($row['total']) ?></td>
                             </tr>
                         <?php endforeach; ?>
                     </tbody>
                 </table>
             </div>
+            <?php } else {echo "<h3>Data tidak ditemukan</h3>";}?>
         </div>
-        <?php if(mysqli_num_rows($result) > 1){ ?>
+        <?php if(mysqli_num_rows($result) > 0){ ?>
             <nav class="text-center">
 
                 <span>Menampilkan <?=$hal_awal+1 ."-". $no-1?> data dari <?=mysqli_num_rows($data)?> data</span>
