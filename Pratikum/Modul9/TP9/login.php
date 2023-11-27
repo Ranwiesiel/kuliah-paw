@@ -11,7 +11,7 @@ if(isset($_SESSION["username"])){
 }
 
 if(isset($_POST['submit'])){
-    $username = $_POST['username'];
+    $username = htmlentities($_POST['username']);
     $password = md5($_POST['password']);
     $query =  "SELECT username, `level` FROM user WHERE username='$username' AND `password`='$password'";
     $hasil = mysqli_query($koneksi, $query) -> fetch_assoc();

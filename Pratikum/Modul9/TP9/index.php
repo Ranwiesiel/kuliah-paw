@@ -20,6 +20,8 @@ if (isset($_GET['user'])) {
     mysqli_query($koneksi, "DELETE FROM user WHERE id_user='$id'");
 }
 
+echo $_SESSION["username"];
+
 $query = mysqli_query($koneksi, "SELECT id_user, username, nama, `level` FROM user");
 ?>
 

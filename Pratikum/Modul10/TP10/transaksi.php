@@ -14,7 +14,6 @@ if (!isset($_SESSION["username"])) {
 $batas = 2;
 $filter_param = '?';
 $search = '';
-$view = '';
 
 if (isset($_GET['view'])){
 	$batas = $_GET['view'];
@@ -87,7 +86,7 @@ if (isset($_GET['tgl_awal'])){
     $tgl_tujuan = $_GET['tgl_tujuan'];
     $data = mysqli_query($koneksi, "SELECT * FROM transaksi WHERE waktu_transaksi BETWEEN '$tgl_awal' AND '$tgl_tujuan'");
     $result = mysqli_query($koneksi, "SELECT * FROM transaksi WHERE waktu_transaksi BETWEEN '$tgl_awal' AND '$tgl_tujuan' LIMIT $hal_awal, $batas");
-    $filter_param = "?tgl_awal=".$tgl_awal."&tgl_tujuan=".$tgl_tujuan."&view=".$view;
+    $filter_param = "?tgl_awal=".$tgl_awal."&tgl_tujuan=".$tgl_tujuan."&view=".$batas."&";
 }
 
 $jumlah_data = mysqli_num_rows($data);
@@ -169,6 +168,14 @@ function rupiah($angka){
             <div class="col-3">
                 <form method="get" action="">
                     <div class="input-group input-group-sm mb-3">
+                        <?php if (isset($_GET['tgl_awal'])): ?>
+                            <input type="hidden" name="tgl_awal" value="<?=$tgl_awal?>">
+                            <input type="hidden" name="tgl_tujuan" value="<?=$tgl_tujuan?>">
+                        <?php endif ?>
+                        <?php if (isset($_GET['s'])): ?>
+                            <input type="hidden" name="s" value="<?=$_GET['s']?>">
+                            <input type="hidden" name="sort" value="<?=$_GET['sort']?>">
+                        <?php endif ?>
                         <span class="input-group-text">Menampilkan</span>
                             <select class="form-select" name="view" onchange="this.form.submit()">
                                 <?php

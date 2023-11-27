@@ -3,7 +3,7 @@ include 'koneksi.inc';
 session_start();
 
 if(isset($_POST['submit'])){
-    $username = $_POST['username'];
+    $username = htmlentities($_POST['username']);
     $password = md5($_POST['password']);
     $nama = $_POST['nama'];
     $alamat = $_POST['alamat'];
@@ -12,7 +12,8 @@ if(isset($_POST['submit'])){
     $insertData = "INSERT INTO user (username, `password`, nama, alamat, hp, `level`) VALUES ('$username', '$password', '$nama', '$alamat', '$hp', '$level')";
     try{
         mysqli_query($koneksi, $insertData);
-        header('location: login.php');
+        // header('location: login.php');
+        echo("Error description: " . mysqli_error($koneksi));
     } catch(Exception $e){
         echo "". $e->getMessage();
         $error = true;
