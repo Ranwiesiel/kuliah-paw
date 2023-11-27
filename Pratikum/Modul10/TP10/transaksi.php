@@ -11,7 +11,7 @@ if (!isset($_SESSION["username"])) {
     header("location: login.php");
 }
 
-$batas = 2;
+$batas = 5;
 $filter_param = '?';
 $search = '';
 
