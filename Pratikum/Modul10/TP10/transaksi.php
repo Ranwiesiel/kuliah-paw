@@ -12,9 +12,13 @@ if (!isset($_SESSION["username"])) {
 }
 
 $batas = 2;
+$filter_param = '?';
+$search = '';
+$view = '';
 
 if (isset($_GET['view'])){
 	$batas = $_GET['view'];
+    $filter_param = "?view=$batas&";
 }
 
 $hal = isset($_GET['hal']) ? (int)$_GET['hal'] : 1;
@@ -47,33 +51,47 @@ if (isset($_GET["search"])){
     total LIKE '%$search%'
     LIMIT $hal_awal, $batas
     ");
+
+    $search = (isset($_GET['search']) ? "WHERE
+    id LIKE '%$search%' OR
+    pelanggan_id LIKE '%$search%' OR
+    waktu_transaksi LIKE '%$search%' OR
+    keterangan LIKE '%$search%' OR
+    total LIKE '%$search%'
+    " : "");
 }
 
-$jumlah_data = mysqli_num_rows($data);
-$total_hal = ceil($jumlah_data / $batas);
+// echo $_SERVER['QUERY_STRING'];
+if (isset($_GET['sort'])){
+    $sort = $_GET['sort'];
+    $kolom = $_GET['s'];
+    if ($sort == "desc"){
+        $result = mysqli_query($koneksi, "SELECT * FROM transaksi $search ORDER BY $kolom DESC LIMIT $hal_awal, $batas");
+    } else {
+        $result = mysqli_query($koneksi, "SELECT * FROM transaksi $search ORDER BY $kolom LIMIT $hal_awal, $batas ");
+    } 
+}
 
-$filter_param = '?';
+
 if (isset($_GET['search'])){
 	$cari = $_GET['search'];
 	$filter_param = "?search=".$cari."&";
     if (isset($_GET['hal'])){
         $p = $_GET['hal'];
-        $filter_param = "?search=".$cari."&hal=".$p."&";
+        $filter_param = "?search=".$cari."&";
     }
 }
 
-$_SERVER['QUERY_STRING'];
-
-if (isset($_GET['sort'])){
-    $sort = $_GET['sort'];
-    $kolom = $_GET['s'];
-    // $filter_param = "?s=".$kolom."&sort=".$sort."&";
-    if ($sort == "desc"){
-        $result = mysqli_query($koneksi, "SELECT * FROM transaksi ORDER BY $kolom DESC LIMIT $hal_awal, $batas");
-    } else {
-        $result = mysqli_query($koneksi, "SELECT * FROM transaksi ORDER BY $kolom LIMIT $hal_awal, $batas");
-    }
+if (isset($_GET['tgl_awal'])){
+    $tgl_awal = $_GET['tgl_awal'];
+    $tgl_tujuan = $_GET['tgl_tujuan'];
+    $data = mysqli_query($koneksi, "SELECT * FROM transaksi WHERE waktu_transaksi BETWEEN '$tgl_awal' AND '$tgl_tujuan'");
+    $result = mysqli_query($koneksi, "SELECT * FROM transaksi WHERE waktu_transaksi BETWEEN '$tgl_awal' AND '$tgl_tujuan' LIMIT $hal_awal, $batas");
+    $filter_param = "?tgl_awal=".$tgl_awal."&tgl_tujuan=".$tgl_tujuan."&view=".$view;
 }
+
+$jumlah_data = mysqli_num_rows($data);
+$total_hal = ceil($jumlah_data / $batas);
 
 function rupiah($angka){
 	$hasil_rupiah = "Rp " . number_format($angka,2,',','.');
@@ -159,8 +177,21 @@ function rupiah($angka){
                                             <option <?= (isset($_GET["view"]) && $_GET["view"] == $key) ? "selected" : "" ?> value="<?=$key?>"><?=$key?></option>
                                     <?php endforeach; ?>
                             </select>
-                            <span class="input-group-text">data</span>
-                        </div>
+                        <span class="input-group-text">data</span>
+                    </div>
+                </form>
+            </div>
+            <div class="col-5">
+                <form method="get" action=''>
+                    <div class="input-group input-group-sm mb-3">
+                        <span class="input-group-text">Filter tanggal</span>
+                            <input type="date" class="form-control" name="tgl_awal">
+                        <span class="input-group-text">sampai</span>     
+                            <input type="date" class="form-control" name="tgl_tujuan">
+                        <?php if (isset($_GET['view'])): ?>
+                            <input type="hidden" name="view" value="<?=$_GET['view']?>">
+                        <?php endif ?>
+                        <button class="btn btn-secondary" type="submit">Filter</button>
                     </div>
                 </form>
             </div>
@@ -238,17 +269,17 @@ function rupiah($angka){
 
                 <ul class="pagination justify-content-center mt-3">
                     <li class="page-item <?= ($hal <= 1) ? "disabled" : ''; ?>">
-                        <a class="page-link" href='<?=(!$_SERVER['QUERY_STRING'] ? "?" : $filter_param)?>hal=<?= $prev ?>'>Previous</a>
+                        <a class="page-link" href='<?=(!$_SERVER['QUERY_STRING'] ? "?" : $filter_param)?><?= (isset($_GET['sort'])) ? "s=".$kolom."&sort=".$sort."&" : "" ?>hal=<?= $prev ?>'>Previous</a>
                     </li>
 
                     <?php for ($x = 1; $x <= $total_hal; $x++) { ?>
                         <li class="page-item <?= ($hal == $x) ? "active" : ''; ?>">
-                            <a class="page-link" href='<?=(!$_SERVER['QUERY_STRING'] ? "?" : $filter_param)?>hal=<?= $x ?>'><?= $x ?></a>
+                            <a class="page-link" href='<?=(!$_SERVER['QUERY_STRING'] ? "?" : $filter_param)?><?= (isset($_GET['sort'])) ? "s=".$kolom."&sort=".$sort."&" : "" ?>hal=<?= $x ?>'><?= $x ?></a>
                         </li>
                     <?php } ?>
 
                     <li class="page-item <?= ($hal >= $total_hal) ? "disabled" : ''; ?>">
-                        <a class="page-link" href='<?=(!$_SERVER['QUERY_STRING'] ? "?" : $filter_param)?>hal=<?= $next ?>'>Next</a>
+                        <a class="page-link" href='<?=(!$_SERVER['QUERY_STRING'] ? "?" : $filter_param)?><?= (isset($_GET['sort'])) ? "s=".$kolom."&sort=".$sort."&" : "" ?>hal=<?= $next ?>'>Next</a>
                     </li>
                 </ul>
             </nav>
