@@ -72,6 +72,8 @@ if (isset($_GET['search'])) {
 }
 
 
+$filter_param = "?";
+
 if (isset($_GET['sort'])) {
 	$data_sort = $_GET;
 
@@ -118,10 +120,10 @@ if (isset($_GET['search'])) {
 				<span class="navbar-toggler-icon"></span>
 			</button>
 			<div class="collapse navbar-collapse" id="navbarSupportedContent">
-				<ul class="navbar-nav">
-					<a class="nav-item nav-link" href="menu.php">Menu</a>
-					<a class="nav-item nav-link active" href="order.php">Order</a>
-				</ul>
+					<ul class="navbar-nav">
+						<a class="nav-item nav-link" href="menu.php">Menu</a>
+						<a class="nav-item nav-link active" href="order.php">Order</a>
+					</ul>
 				<ul class="nav navbar-nav me-auto">
 					<li class="nav-item dropdown">
 						<a class="dropdown-toggle nav-link" role="button" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">
@@ -190,7 +192,7 @@ if (isset($_GET['search'])) {
 									<td><?= $row['pelayan'] ?></td>
 									<td><?= $row['no_meja'] ?></td>
 									<td><?= rupiah($total) ?></td>
-									<td><a class='btn btn-light' href='Orderdetil.php?idorder=<?= $row['id_order'] ?>'>Lihat Pesanan</a></td>
+									<td><a class='btn btn-light' href='orderDetil.php?idorder=<?= $row['id_order'] ?>'>Lihat Pesanan</a></td>
 								</tr>
 							<?php $no++;
 							} ?>
@@ -206,7 +208,7 @@ if (isset($_GET['search'])) {
 
 
 
-				<span>Menampilkan <?= $hal_awal + 1 . "-" . $no - 1 ?> data dari <?= mysqli_num_rows($data) ?> data</span>
+				<span>Menampilkan <?= intval($hal_awal + 1) . "-" . intval($no - 1) ?> data dari <?= intval(mysqli_num_rows($data)) ?> total data</span>
 				<ul class="pagination justify-content-center mt-3">
 					<li class="page-item <?= ($hal <= 1) ? "disabled" : ''; ?>">
 						<a class="page-link" href='<?= (!$_SERVER['QUERY_STRING'] ? "?" : $filter_param) ?>hal=<?= $prev ?>'>Previous</a>

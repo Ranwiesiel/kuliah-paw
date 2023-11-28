@@ -1,6 +1,7 @@
 <?php
 include "koneksi.inc";
 session_start();
+
 if(isset($_GET['idorder'])){
 	$idorder = $_GET['idorder'];
 	$raw_sql = mysqli_query($koneksi, "SELECT menu.nama_makanan, menu.harga, order_detil.jumlah, order_detil.subtotal, order_detil.id FROM menu INNER JOIN order_detil ON (order_detil.id_menu = menu.id_makanan) WHERE order_detil.id_order = '$idorder'");
@@ -32,14 +33,16 @@ $ind = 0;
 </head>
 <body>
 	<nav class="navbar navbar-expand-lg navbar-light" style="background-color: #e3f2fd;">
-		<a class="navbar-brand" href="index.php" style="margin-left: 10px; font-family: cursive; color: blue;">DaiRW</a>
+		<a class="navbar-brand" href=<?=($_SESSION['isLogin']) ? 'index.php' : 'login.php'?>" style="margin-left: 10px; font-family: cursive; color: blue;">DaiRW</a>
   		<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
     		<span class="navbar-toggler-icon"></span>
   		</button>
   		<div class="collapse navbar-collapse" id="navbarNavAltMarkup">
     		<div class="navbar-nav">
-		      <a class="nav-item nav-link" href="menu.php">Menu</a>
-		      <a class="nav-item nav-link" href="order.php">Order</a>
+				<?php if ($_SESSION['isLogin']){ ?>
+					<a class="nav-item nav-link" href="menu.php">Menu</a>
+					<a class="nav-item nav-link" href="order.php">Order</a>
+				<?php } ?>
     		</div>
 		</div>
 	</nav>
@@ -79,8 +82,10 @@ $ind = 0;
 						<td colspan="2"><?=rupiah($total_harga)?></td>
 					</tr>
 				</table>
-				<a class="btn btn-primary" href="order.php">Kembali</a>
-				<a class="btn btn-primary" href="insertOrderDetil.php?idorder=<?= $idorder ?>">Tambah Menu</a>
+				<a class="btn btn-primary" href="<?=($_SESSION['isLogin']) ? 'order.php' : 'login.php'?>">Kembali</a>
+				<?php if ($_SESSION['level'] == "admin") { ?>
+					<a class="btn btn-primary" href="insertOrderDetil.php?idorder=<?= $idorder ?>">Tambah Menu</a>
+				<?php } ?>
 			</div>
 		</div>
 	</div>

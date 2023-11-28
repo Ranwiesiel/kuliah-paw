@@ -23,6 +23,11 @@
 	<?php
 		session_start();
 		if (isset($_SESSION['isLogin'])){
+			if($_SESSION['isLogin']){
+
+			} else {
+				header('location: logout.php');
+			}
 
 		} else {
 			header('location: login.php');

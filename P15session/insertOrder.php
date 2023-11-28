@@ -1,5 +1,6 @@
 <?php
 include "koneksi.inc";
+session_start();
 ?>
 
 <!DOCTYPE html>
@@ -14,12 +15,12 @@ include "koneksi.inc";
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-light" style="background-color: #e3f2fd;">
-        <a class="navbar-brand" href="index.php" style="margin-left: 10px; font-family: cursive; color: blue;">DaiRW</a>
+        <a class="navbar-brand" href="<?=($_SESSION['isLogin']) ? 'index.php' : 'login.php'?>" style="margin-left: 10px; font-family: cursive; color: blue;">DaiRW</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
-            <?php if (isset($_SESSION['isLogin'])) {?>
+            <?php if ($_SESSION['isLogin']) {?>
                 <div class="navbar-nav">
                     <a class="nav-item nav-link" href="menu.php">Menu</a>
                     <a class="nav-item nav-link" href="order.php">Order</a>
@@ -45,7 +46,7 @@ include "koneksi.inc";
                     <input class="form-control" type="number" name="no_meja">
 
                     <br>
-                    <input class="btn btn-primary" type="submit" value="Order" name="proses"> <a class="btn btn-primary" href="<?=(isset($_SESSION['isLogin'])) ? 'order.php' : 'login.php' ?>">Kembali</a>
+                    <input class="btn btn-primary" type="submit" value="Order" name="proses"> <a class="btn btn-primary" href="<?=($_SESSION['isLogin']) ? 'order.php' : 'login.php' ?>">Kembali</a>
                 </form>
             </div>
         </div>

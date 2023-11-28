@@ -11,7 +11,7 @@ if (!isset($_SESSION["username"])) {
     header("location: login.php");
 }
 
-$batas = 5;
+$batas = 3;
 $filter_param = '?';
 $search = '';
 
@@ -30,6 +30,14 @@ $data = mysqli_query($koneksi, "SELECT * FROM transaksi");
 $no = $hal_awal + 1;
 
 $result = mysqli_query($koneksi, "SELECT * FROM transaksi LIMIT $hal_awal, $batas");
+
+if (isset($_GET['tgl_awal'])){
+    $tgl_awal = $_GET['tgl_awal'];
+    $tgl_tujuan = $_GET['tgl_tujuan'];
+    $data = mysqli_query($koneksi, "SELECT * FROM transaksi WHERE waktu_transaksi BETWEEN '$tgl_awal' AND '$tgl_tujuan'");
+    $result = mysqli_query($koneksi, "SELECT * FROM transaksi WHERE waktu_transaksi BETWEEN '$tgl_awal' AND '$tgl_tujuan' LIMIT $hal_awal, $batas");
+    $filter_param = "?tgl_awal=".$tgl_awal."&tgl_tujuan=".$tgl_tujuan."&view=".$batas."&";
+}
 
 if (isset($_GET["search"])){
     $search = $_GET["search"];
@@ -51,23 +59,53 @@ if (isset($_GET["search"])){
     LIMIT $hal_awal, $batas
     ");
 
-    $search = (isset($_GET['search']) ? "WHERE
+    $searchQ = (isset($_GET['search']) ? "WHERE
     id LIKE '%$search%' OR
     pelanggan_id LIKE '%$search%' OR
     waktu_transaksi LIKE '%$search%' OR
     keterangan LIKE '%$search%' OR
     total LIKE '%$search%'
     " : "");
+
+
+    if (isset($_GET['tgl_awal'])){
+        $data = mysqli_query($koneksi, "SELECT * FROM transaksi WHERE waktu_transaksi BETWEEN '$tgl_awal' AND '$tgl_tujuan' AND 
+            (id LIKE '%$search%' OR
+            pelanggan_id LIKE '%$search%' OR
+            waktu_transaksi LIKE '%$search%' OR
+            keterangan LIKE '%$search%' OR
+            total LIKE '%$search%');
+        ");
+
+        $result = mysqli_query($koneksi, "SELECT * FROM transaksi WHERE waktu_transaksi BETWEEN '$tgl_awal' AND '$tgl_tujuan' AND
+            (id LIKE '%$search%' OR
+            pelanggan_id LIKE '%$search%' OR
+            waktu_transaksi LIKE '%$search%' OR
+            keterangan LIKE '%$search%' OR
+            total LIKE '%$search%')
+            LIMIT $hal_awal, $batas
+        ");
+
+        $searchQ = (isset($_GET['tgl_awal']) ? "WHERE waktu_transaksi BETWEEN '$tgl_awal' AND '$tgl_tujuan' AND
+            (id LIKE '%$search%' OR
+            pelanggan_id LIKE '%$search%' OR
+            waktu_transaksi LIKE '%$search%' OR
+            keterangan LIKE '%$search%' OR
+            total LIKE '%$search%')" : "");
+    }
 }
+
+$jumlah_data = mysqli_num_rows($data);
+$total_hal = ceil($jumlah_data / $batas);
 
 // echo $_SERVER['QUERY_STRING'];
 if (isset($_GET['sort'])){
     $sort = $_GET['sort'];
     $kolom = $_GET['s'];
     if ($sort == "desc"){
-        $result = mysqli_query($koneksi, "SELECT * FROM transaksi $search ORDER BY $kolom DESC LIMIT $hal_awal, $batas");
+        $result = mysqli_query($koneksi, "SELECT * FROM transaksi $searchQ ORDER BY $kolom DESC LIMIT $hal_awal, $batas");
     } else {
-        $result = mysqli_query($koneksi, "SELECT * FROM transaksi $search ORDER BY $kolom LIMIT $hal_awal, $batas ");
+        $result = mysqli_query($koneksi, "SELECT * FROM transaksi $searchQ ORDER BY $kolom LIMIT $hal_awal, $batas ");
     } 
 }
 
@@ -80,17 +118,6 @@ if (isset($_GET['search'])){
         $filter_param = "?search=".$cari."&";
     }
 }
-
-if (isset($_GET['tgl_awal'])){
-    $tgl_awal = $_GET['tgl_awal'];
-    $tgl_tujuan = $_GET['tgl_tujuan'];
-    $data = mysqli_query($koneksi, "SELECT * FROM transaksi WHERE waktu_transaksi BETWEEN '$tgl_awal' AND '$tgl_tujuan'");
-    $result = mysqli_query($koneksi, "SELECT * FROM transaksi WHERE waktu_transaksi BETWEEN '$tgl_awal' AND '$tgl_tujuan' LIMIT $hal_awal, $batas");
-    $filter_param = "?tgl_awal=".$tgl_awal."&tgl_tujuan=".$tgl_tujuan."&view=".$batas."&";
-}
-
-$jumlah_data = mysqli_num_rows($data);
-$total_hal = ceil($jumlah_data / $batas);
 
 function rupiah($angka){
 	$hasil_rupiah = "Rp " . number_format($angka,2,',','.');
@@ -168,6 +195,9 @@ function rupiah($angka){
             <div class="col-3">
                 <form method="get" action="">
                     <div class="input-group input-group-sm mb-3">
+                        <?php if (isset($_GET['search'])): ?>
+                            <input type="hidden" name="search" value="<?=$search?>">
+                        <?php endif ?>
                         <?php if (isset($_GET['tgl_awal'])): ?>
                             <input type="hidden" name="tgl_awal" value="<?=$tgl_awal?>">
                             <input type="hidden" name="tgl_tujuan" value="<?=$tgl_tujuan?>">
@@ -191,6 +221,9 @@ function rupiah($angka){
             <div class="col-5">
                 <form method="get" action=''>
                     <div class="input-group input-group-sm mb-3">
+                        <?php if (isset($_GET['search'])): ?>
+                            <input type="hidden" class="form-control" name="search" value="<?=$_GET['search']?>">
+                        <?php endif ?>
                         <span class="input-group-text">Filter tanggal</span>
                             <input type="date" class="form-control" name="tgl_awal">
                         <span class="input-group-text">sampai</span>     
@@ -272,7 +305,7 @@ function rupiah($angka){
         <?php if(mysqli_num_rows($result) > 0){ ?>
             <nav class="text-center">
 
-                <span>Menampilkan <?=$hal_awal+1 ."-". $no-1?> data dari <?=mysqli_num_rows($data)?> data</span>
+                <span>Menampilkan <?=$hal_awal+1 ."-". $no-1?> data dari <?=mysqli_num_rows($data)?> total data</span>
 
                 <ul class="pagination justify-content-center mt-3">
                     <li class="page-item <?= ($hal <= 1) ? "disabled" : ''; ?>">

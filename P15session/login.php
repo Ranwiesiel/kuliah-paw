@@ -21,9 +21,6 @@
 </head>
 
 <body>
-	<?php
-	session_start();
-	?>
 	<div class='container mt-5'>
 		<div class='row'>
 			<div class='col-4 mx-auto'>
@@ -31,7 +28,7 @@
 				<div class="card">
                     <h5 class="card-header">Login</h5>
                     <div class="card-body">
-                        <form method="post" action="login_action.php">
+                        <form method="post" action="login_action.php?login">
                             <div class="mb-3">
                                 <label for="username" class="form-label">Username</label>
                                 <input type="Username" class="form-control" id="username" autocomplete="off" name='username'>
@@ -42,7 +39,7 @@
                             </div>
                             <button type="submit" class="btn btn-primary mb-3" name='submit'>Login</button>
                         </form>
-                        <p class="card-text">Login sebagai <a href="insertOrder.php">guest</a>!</p>
+                        <p class="card-text">Login sebagai <a href="login_action.php?guest">guest</a>!</p>
                     </div>
                 </div>
 			</div>

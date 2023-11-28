@@ -123,7 +123,9 @@ if (isset($_GET['sort'])) {
 					endwhile; ?>
 
 				</table>
-				<a class="btn btn-primary" href="insertData.php">Tambah Data</a>
+				<?php if ($_SESSION['level'] == "admin") { ?>
+					<a class="btn btn-primary" href="insertData.php">Tambah Data</a>
+				<?php } ?>
 			</div>
 		</div>
 	</div>
