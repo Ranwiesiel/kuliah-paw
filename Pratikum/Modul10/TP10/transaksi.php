@@ -13,7 +13,7 @@ if (!isset($_SESSION["username"])) {
 
 $batas = 3;
 $filter_param = '?';
-$search = '';
+$searchQ = '';
 
 if (isset($_GET['view'])){
 	$batas = $_GET['view'];
